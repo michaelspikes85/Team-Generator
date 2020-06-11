@@ -10,6 +10,118 @@ const outputPath = path.join(OUTPUT_DIR, "team.html");
 
 const render = require("./lib/htmlRenderer");
 
+const createTeam = employeeArr => {
+    fs.writeFile(outputPath, render(employeeArr), () =>{} );
+}
+
+const promptTeamInfo = () => {
+
+    const promptManagerInfo = (name, id, email) => {
+        inquirer.prompt({
+            type: "number",
+            message: "What is the manager's office number?",
+            name: "officeNumber"
+        }).then(({ officeNumber }) => {
+            employeeArr.push(new Manager(name, id, email, officeNumber));
+            inquirer.prompt({
+                type: "confirm",
+                message: "Do you want to add another employee?",
+                name: "nextEmployee"
+            }).then(({ nextEmployee }) => {
+                if (nextEmployee) {
+                    promptEmployeeInfo();
+                } else {
+                    createTeam(employeeArr);
+                }
+            })
+        })
+    }
+
+    const promptEngineerInfo = (name, id, email) => {
+        inquirer.prompt({
+            type: "input",
+            message: "What is the engineer's github username?",
+            name: "github"
+        }).then(({ github }) => {
+            employeeArr.push(new Engineer(name, id, email, github));
+            inquirer.prompt({
+                type: "confirm",
+                message: "Do you want to add another employee?",
+                name: "nextEmployee"
+            }).then(({ nextEmployee }) => {
+                if (nextEmployee) {
+                    promptEmployeeInfo();
+                } else {
+                    createTeam(employeeArr);
+                }
+            })
+        })
+    }
+
+    const promptInternInfo = (name, id, email) => {
+        inquirer.prompt({
+            type: "input",
+            message: "What school did they go to?",
+            name: "school"
+        }).then(({ school }) => {
+            employeeArr.push(new Intern(name, id, email, school));
+            inquirer.prompt({
+                type: "confirm",
+                message: "Do you want to add another employee?",
+                name: "nextEmployee"
+            }).then(({ nextEmployee }) => {
+                if (nextEmployee) {
+                    promptEmployeeInfo();
+                } else {
+                    createTeam(employeeArr);
+                }
+            })
+        })
+    }
+
+    const promptEmployeeInfo = () => {
+        console.log("Enter the employee's information:");
+        inquirer.prompt([{
+            type: "input",
+            message: "What is this employee's name?",
+            name: "name"
+        }, {
+            type: "number",
+            message: "What is the employee's ID number?",
+            name: "id"
+        }, {
+            type: "input",
+            message: "What is the employee's email address?",
+            name: "email",
+        }, {
+            type: "list",
+            message: "What is the employee's role?",
+            choices: ["Intern", "Engineer", "Manager"],
+            name: "role"
+        }]).then(({ name, id, email, role }, error) => {
+            switch (role) {
+                case "Intern":
+                    promptInternInfo(name, id, email);
+                    break;
+                case "Engineer":
+                    promptEngineerInfo(name, id, email);
+                    break;
+                case "Manager":
+                    promptManagerInfo(name, id, email);
+                    break;
+                default:
+                    throw error;
+            }
+        })
+    }
+
+    const employeeArr = [];
+    
+    promptEmployeeInfo();
+}
+
+console.log("Please enter the employee information.");
+promptTeamInfo();
 
 // Write code to use inquirer to gather information about the development team members,
 // and to create objects for each team member (using the correct classes as blueprints!)
